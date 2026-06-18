@@ -27,7 +27,7 @@ If local Windows runs fail with `UNABLE_TO_VERIFY_LEAF_SIGNATURE`, use `npm run 
 | `AGENT_PASSWORD` | Yes | None | Password for the AI player account. Never commit this value. |
 | `AGENT_SERVER` | Yes | `India` | App server/league to read and submit predictions for. |
 | `DRY_RUN` | No | `true` | When `true`, prints predictions without submitting them. |
-| `PREDICTION_MODE` | No | `all` | Use `all` for every eligible fixture or `due` for scheduled 90-minute runs. |
+| `PREDICTION_MODE` | No | `all` | Use `all` for every eligible fixture, `due` for scheduled 90-minute runs, or `next` for the nearest upcoming eligible fixture. |
 | `PREDICTION_LOOKAHEAD_MINUTES` | No | `90` | In `due` mode, target fixtures this many minutes before kickoff. |
 | `PREDICTION_WINDOW_MINUTES` | No | `10` | In `due` mode, accept fixtures from `lookahead` through `lookahead + window`. |
 
@@ -233,6 +233,16 @@ Configure these optional GitHub repository variables:
 - `PREDICTION_WINDOW_MINUTES` — defaults to `10`
 
 Use the manual `workflow_dispatch` trigger with `dry_run=true` before enabling live submissions.
+
+For a safe production test against the nearest upcoming match:
+
+1. Open `Actions` → `Scheduled Prediction Agent`.
+2. Select `Run workflow`.
+3. Set `dry_run=false`.
+4. Set `prediction_mode=next`.
+5. Run the workflow.
+
+Use `prediction_mode=all` only when you intentionally want to fill every eligible unlocked fixture.
 
 ## Provider Layout
 

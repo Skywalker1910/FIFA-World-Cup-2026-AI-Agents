@@ -13,6 +13,15 @@ on:
         options:
           - "true"
           - "false"
+      prediction_mode:
+        description: "Which eligible fixtures to predict"
+        required: true
+        default: "due"
+        type: choice
+        options:
+          - "due"
+          - "next"
+          - "all"
 
 concurrency:
   group: scheduled-prediction-agent
@@ -30,7 +39,7 @@ jobs:
       AGENT_LOGIN_ID: ${{ secrets.AGENT_LOGIN_ID }}
       AGENT_PASSWORD: ${{ secrets.AGENT_PASSWORD }}
       AGENT_SERVER: ${{ vars.AGENT_SERVER || 'India' }}
-      PREDICTION_MODE: due
+      PREDICTION_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.prediction_mode || 'due' }}
       PREDICTION_LOOKAHEAD_MINUTES: ${{ vars.PREDICTION_LOOKAHEAD_MINUTES || '90' }}
       PREDICTION_WINDOW_MINUTES: ${{ vars.PREDICTION_WINDOW_MINUTES || '10' }}
       DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}

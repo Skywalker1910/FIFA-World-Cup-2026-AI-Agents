@@ -186,11 +186,11 @@ function parseBoolean(value, defaultValue) {
 
 function parsePredictionMode(value) {
   const normalized = String(value).trim().toLowerCase();
-  if (normalized === "all" || normalized === "due") {
+  if (["all", "due", "next"].includes(normalized)) {
     return normalized;
   }
 
-  throw new Error("PREDICTION_MODE must be either all or due.");
+  throw new Error("PREDICTION_MODE must be one of: all, due, next.");
 }
 
 function parsePositiveInteger(value, defaultValue, envName) {
@@ -214,6 +214,10 @@ function selectFixturesForRun(eligibleFixtures, config) {
     };
   }
 
+  if (config.predictionMode === "next") {
+    return selectNextFixture(eligibleFixtures);
+  }
+
   const { due, skipped } = filterFixturesDueForPrediction(eligibleFixtures, {
     lookaheadMinutes: config.predictionLookaheadMinutes,
     windowMinutes: config.predictionWindowMinutes,
@@ -223,6 +227,78 @@ function selectFixturesForRun(eligibleFixtures, config) {
     fixtures: due,
     skipped,
   };
+}
+
+function selectNextFixture(eligibleFixtures) {
+  const fixturesWithKickoff = [];
+  const skipped = [];
+
+  for (const fixture of eligibleFixtures) {
+    const kickoffDate = getFixtureKickoffDate(fixture);
+    if (!kickoffDate) {
+      skipped.push({
+        matchId: fixture.id ?? null,
+        team1: fixture.team1 ?? null,
+        team2: fixture.team2 ?? null,
+        reasons: ["missing or invalid kickoff time"],
+      });
+      continue;
+    }
+
+    fixturesWithKickoff.push({
+      fixture,
+      kickoffTime: kickoffDate.getTime(),
+    });
+  }
+
+  fixturesWithKickoff.sort((left, right) => left.kickoffTime - right.kickoffTime);
+  const [nextFixture] = fixturesWithKickoff;
+
+  if (!nextFixture) {
+    return {
+      fixtures: [],
+      skipped,
+    };
+  }
+
+  for (const item of fixturesWithKickoff.slice(1)) {
+    skipped.push({
+      matchId: item.fixture.id ?? null,
+      team1: item.fixture.team1 ?? null,
+      team2: item.fixture.team2 ?? null,
+      kickoffTime: item.fixture.kickoffTime,
+      reasons: ["not the next eligible fixture"],
+    });
+  }
+
+  return {
+    fixtures: [nextFixture.fixture],
+    skipped,
+  };
+}
+
+function getFixtureKickoffDate(fixture) {
+  const value = fixture.kickoffTime;
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value;
+  }
+
+  if (typeof value === "number") {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  if (typeof value === "string" && value.trim().length > 0) {
+    const trimmedValue = value.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmedValue)) {
+      return null;
+    }
+
+    const date = new Date(trimmedValue);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  return null;
 }
 
 function formatError(error) {
