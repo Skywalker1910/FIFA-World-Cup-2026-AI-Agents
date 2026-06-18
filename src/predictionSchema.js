@@ -42,6 +42,8 @@ export function normalizeMatch(rawMatch) {
     team1,
     team2,
     kickoffTime:
+      rawMatch.kickoffAt ??
+      rawMatch.kickoff_at ??
       rawMatch.kickoffTime ??
       rawMatch.startTime ??
       rawMatch.date ??
@@ -55,7 +57,9 @@ export function normalizeMatch(rawMatch) {
         rawMatch.settled ??
         rawMatch.isSettled ??
         rawMatch.completed ??
-        rawMatch.isComplete,
+        rawMatch.isComplete ??
+        rawMatch.result ??
+        ["FT", "AET", "PEN", "FINISHED"].includes(String(rawMatch.status ?? rawMatch.match_status ?? "").toUpperCase()),
     ),
     raw: rawMatch,
   };
@@ -144,7 +148,7 @@ export function extractExistingPredictionMatchIds(state, user) {
   return matchIds;
 }
 
-export function getEligibleFixtures(state, user) {
+export function getEligibleFixtures(state, user, { allowUpdateExisting = false } = {}) {
   const fixtures = extractFixtures(state);
   const existingPredictionMatchIds = extractExistingPredictionMatchIds(state, user);
   const skipped = [];
@@ -156,7 +160,7 @@ export function getEligibleFixtures(state, user) {
     if (fixture.id === undefined || fixture.id === null) {
       reasons.push("missing match id");
     }
-    if (existingPredictionMatchIds.has(String(fixture.id))) {
+    if (!allowUpdateExisting && hasExistingPrediction(fixture, user, existingPredictionMatchIds)) {
       reasons.push("already predicted");
     }
     if (fixture.locked) {
@@ -183,6 +187,23 @@ export function getEligibleFixtures(state, user) {
   }
 
   return { eligible, skipped };
+}
+
+function hasExistingPrediction(fixture, user, existingPredictionMatchIds) {
+  if (existingPredictionMatchIds.has(String(fixture.id))) {
+    return true;
+  }
+
+  if (fixture.raw?.myPrediction || fixture.raw?.myPick) {
+    return true;
+  }
+
+  const userId = user?.id ?? user?.userId ?? user?.playerId ?? null;
+  if (userId !== null && fixture.raw?.bets && typeof fixture.raw.bets === "object") {
+    return Boolean(fixture.raw.bets[userId]);
+  }
+
+  return false;
 }
 
 export function filterFixturesDueForPrediction(

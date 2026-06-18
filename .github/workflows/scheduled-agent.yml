@@ -22,6 +22,14 @@ on:
           - "due"
           - "next"
           - "all"
+      allow_update_existing:
+        description: "Allow updating existing predictions"
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 concurrency:
   group: scheduled-prediction-agent
@@ -43,6 +51,7 @@ jobs:
       PREDICTION_LOOKAHEAD_MINUTES: ${{ vars.PREDICTION_LOOKAHEAD_MINUTES || '90' }}
       PREDICTION_WINDOW_MINUTES: ${{ vars.PREDICTION_WINDOW_MINUTES || '10' }}
       DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+      ALLOW_UPDATE_EXISTING: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_update_existing || 'false' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

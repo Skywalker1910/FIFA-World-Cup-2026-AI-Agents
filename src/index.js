@@ -52,7 +52,9 @@ async function main() {
     const user = extractLoggedInUser(loginResponse, state);
     summary.loggedInUser = getUserDisplayName(user, config.loginId);
 
-    const { eligible, skipped } = getEligibleFixtures(state, user);
+    const { eligible, skipped } = getEligibleFixtures(state, user, {
+      allowUpdateExisting: config.allowUpdateExisting,
+    });
     const scheduledSelection = selectFixturesForRun(eligible, config);
     const selectedFixtures = scheduledSelection.fixtures;
     summary.eligibleFixturesFound = eligible.length;
@@ -62,6 +64,7 @@ async function main() {
     logger.info("Eligible fixtures selected", {
       eligibleFixturesFound: eligible.length,
       predictionMode: config.predictionMode,
+      allowUpdateExisting: config.allowUpdateExisting,
       dueFixturesFound: selectedFixtures.length,
       skippedMatches: summary.skippedMatches.length,
     });
@@ -153,6 +156,7 @@ function loadConfig() {
     password: process.env.AGENT_PASSWORD,
     server: process.env.AGENT_SERVER,
     dryRun: parseBoolean(process.env.DRY_RUN, true),
+    allowUpdateExisting: parseBoolean(process.env.ALLOW_UPDATE_EXISTING, false),
     predictionMode: parsePredictionMode(process.env.PREDICTION_MODE ?? "all"),
     predictionLookaheadMinutes: parsePositiveInteger(
       process.env.PREDICTION_LOOKAHEAD_MINUTES,
