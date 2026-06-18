@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Phase-1 AI prediction agent for a FIFA World Cup 2026 prediction app.",
+  "description": "OpenAI GPT-5.5 prediction agent for a FIFA World Cup 2026 prediction app, with Claude and Gemini scaffolds.",
   "scripts": {
     "start": "node src/index.js",
     "start:system-ca": "node --use-system-ca src/index.js",
@@ -12,7 +12,7 @@
     "submit": "cross-env DRY_RUN=false node src/index.js",
     "scheduled-dry-run": "cross-env PREDICTION_MODE=due DRY_RUN=true node src/index.js",
     "scheduled-submit": "cross-env PREDICTION_MODE=due DRY_RUN=false node src/index.js",
-    "check": "node --check src/index.js && node --check src/appClient.js && node --check src/agents/index.js && node --check src/agents/openaiPredictor.js && node --check src/predictionSchema.js && node --check src/logger.js"
+    "check": "node --check src/index.js && node --check src/appClient.js && node --check src/agents/index.js && node --check src/agents/openaiPredictor.js && node --check src/agents/claudePredictor.js && node --check src/agents/geminiPredictor.js && node --check src/predictionSchema.js && node --check src/logger.js"
   },
   "dependencies": {
     "cross-env": "^7.0.3",

@@ -1,8 +1,14 @@
-# FIFA World Cup 2026 AI Prediction Agent
+# FIFA World Cup 2026 OpenAI GPT-5.5 Prediction Agent
 
-Phase-1 Node.js agent that logs in to the FIFA World Cup 2026 prediction app as a normal player, reads eligible fixtures, asks OpenAI for structured predictions, and optionally submits those predictions through the app's HTTP APIs.
+Phase-1 Node.js agent that logs in to the FIFA World Cup 2026 prediction app as a normal player, reads eligible fixtures, asks OpenAI GPT-5.5 for structured predictions, and optionally submits those predictions through the app's HTTP APIs.
 
 This project is intentionally independent from the main web app repository.
+
+The repository is organized for multiple future model agents:
+
+- Phase 1: OpenAI GPT-5.5 agent, implemented and production-ready.
+- Phase 2: Claude agent scaffold, not implemented yet.
+- Phase 3: Gemini agent scaffold, not implemented yet.
 
 ## Setup
 
@@ -19,7 +25,7 @@ If local Windows runs fail with `UNABLE_TO_VERIFY_LEAF_SIGNATURE`, use `npm run 
 
 | Variable | Required | Default | Description |
 | --- | --- | --- | --- |
-| `AI_PROVIDER` | No | `openai` | Prediction provider. `claude` and `gemini` are reserved for future phases. |
+| `AI_PROVIDER` | No | `openai` | Prediction provider. `openai` runs the OpenAI GPT-5.5 agent. `claude` and `gemini` are scaffolded for future phases. |
 | `OPENAI_API_KEY` | Yes | None | OpenAI API key. Never commit this value. |
 | `OPENAI_MODEL` | Yes | `gpt-5.5` | OpenAI model used for predictions. |
 | `WORLD_CUP_APP_BASE_URL` | Yes | `http://localhost:3000` | Base URL for the prediction app. |
@@ -140,7 +146,7 @@ The agent only predicts matches that:
 - Have valid concrete team names.
 - Do not use placeholder knockout labels like `Winner Group A`, `TBD`, or `Team 1`.
 
-## OpenAI Prediction Contract
+## OpenAI GPT-5.5 Prediction Contract
 
 The model is instructed to:
 
@@ -166,7 +172,7 @@ Expected prediction shape:
 
 Valid `pick` values are `Team 1`, `Team 2`, and `Draw`.
 
-## OpenAI Usage Visibility
+## OpenAI GPT-5.5 Usage Visibility
 
 The agent logs the OpenAI `responseId`, model, input tokens, output tokens, cached input tokens, reasoning tokens, and total tokens after every successful prediction call. The OpenAI platform Logs page can show the request before the Usage dashboard finishes aggregating usage, and the Logs table may display `<no output>` until a row is opened even when the API response returned text to the agent.
 
@@ -251,6 +257,8 @@ Use `prediction_mode=all` only when you intentionally want to fill every eligibl
 
 The provider-specific prediction code lives under `src/agents/`.
 
-- `src/agents/openaiPredictor.js` implements phase-1 OpenAI predictions.
+- `src/agents/openaiPredictor.js` implements the phase-1 OpenAI GPT-5.5 agent.
+- `src/agents/claudePredictor.js` is the future Claude agent scaffold.
+- `src/agents/geminiPredictor.js` is the future Gemini agent scaffold.
 - `src/agents/index.js` is the provider factory.
-- `AI_PROVIDER=claude` and `AI_PROVIDER=gemini` intentionally fail fast until those future providers are implemented.
+- `AI_PROVIDER=claude` and `AI_PROVIDER=gemini` intentionally fail fast until those providers are implemented.

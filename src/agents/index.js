@@ -1,3 +1,5 @@
+import { ClaudePredictor } from "./claudePredictor.js";
+import { GeminiPredictor } from "./geminiPredictor.js";
 import { OpenAIPredictor } from "./openaiPredictor.js";
 
 export function createPredictor({ provider, openaiApiKey, openaiModel }) {
@@ -8,9 +10,9 @@ export function createPredictor({ provider, openaiApiKey, openaiModel }) {
         model: openaiModel,
       });
     case "claude":
-      throw new Error("AI_PROVIDER=claude is planned for a future phase.");
+      return new ClaudePredictor();
     case "gemini":
-      throw new Error("AI_PROVIDER=gemini is planned for a future phase.");
+      return new GeminiPredictor();
     default:
       throw new Error("AI_PROVIDER must be one of: openai, claude, gemini.");
   }
