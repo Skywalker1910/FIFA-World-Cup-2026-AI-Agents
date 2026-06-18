@@ -1,0 +1,54 @@
+name: Scheduled Prediction Agent
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Run without submitting predictions"
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+concurrency:
+  group: scheduled-prediction-agent
+  cancel-in-progress: false
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      AI_PROVIDER: openai
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5.5' }}
+      WORLD_CUP_APP_BASE_URL: ${{ secrets.WORLD_CUP_APP_BASE_URL }}
+      AGENT_LOGIN_ID: ${{ secrets.AGENT_LOGIN_ID }}
+      AGENT_PASSWORD: ${{ secrets.AGENT_PASSWORD }}
+      AGENT_SERVER: ${{ vars.AGENT_SERVER || 'India' }}
+      PREDICTION_MODE: due
+      PREDICTION_LOOKAHEAD_MINUTES: ${{ vars.PREDICTION_LOOKAHEAD_MINUTES || '90' }}
+      PREDICTION_WINDOW_MINUTES: ${{ vars.PREDICTION_WINDOW_MINUTES || '10' }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check source
+        run: npm run check
+
+      - name: Run scheduled prediction agent
+        run: npm start

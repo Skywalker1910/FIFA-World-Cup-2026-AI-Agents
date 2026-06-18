@@ -1,0 +1,23 @@
+{
+  "name": "fifa-world-cup-2026-ai-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Phase-1 AI prediction agent for a FIFA World Cup 2026 prediction app.",
+  "scripts": {
+    "start": "node --use-system-ca src/index.js",
+    "dry-run": "cross-env DRY_RUN=true node --use-system-ca src/index.js",
+    "submit": "cross-env DRY_RUN=false node --use-system-ca src/index.js",
+    "scheduled-dry-run": "cross-env PREDICTION_MODE=due DRY_RUN=true node --use-system-ca src/index.js",
+    "scheduled-submit": "cross-env PREDICTION_MODE=due DRY_RUN=false node --use-system-ca src/index.js",
+    "check": "node --use-system-ca --check src/index.js && node --use-system-ca --check src/appClient.js && node --use-system-ca --check src/agents/index.js && node --use-system-ca --check src/agents/openaiPredictor.js && node --use-system-ca --check src/predictionSchema.js && node --use-system-ca --check src/logger.js"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.7",
+    "openai": "^4.77.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
