@@ -184,6 +184,7 @@ Each OpenAI request includes metadata:
 - Missing required environment variables fail fast.
 - `DRY_RUN` defaults to `true`.
 - The primary integration uses HTTP APIs instead of fragile UI automation.
+- `GET /api/state` is retried with backoff for transient production SQLite locks.
 
 ## Roadmap
 

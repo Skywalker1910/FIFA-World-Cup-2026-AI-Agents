@@ -23,8 +23,10 @@ export class AppClient {
   }
 
   async fetchState({ server }) {
-    return this.request(`/api/state?server=${encodeURIComponent(server)}`, {
+    return this.requestWithRetry(`/api/state?server=${encodeURIComponent(server)}`, {
       method: "GET",
+      attempts: 5,
+      initialDelayMs: 500,
     });
   }
 
@@ -83,6 +85,25 @@ export class AppClient {
     return payload;
   }
 
+  async requestWithRetry(path, { attempts, initialDelayMs, ...requestOptions }) {
+    let lastError;
+
+    for (let attempt = 1; attempt <= attempts; attempt += 1) {
+      try {
+        return await this.request(path, requestOptions);
+      } catch (error) {
+        lastError = error;
+        if (attempt === attempts || !isRetryableApiError(error)) {
+          throw error;
+        }
+
+        await delay(initialDelayMs * 2 ** (attempt - 1));
+      }
+    }
+
+    throw lastError;
+  }
+
   captureCookies(response) {
     const setCookieHeaders = getSetCookieHeaders(response.headers);
     if (setCookieHeaders.length === 0) {
@@ -112,6 +133,24 @@ export class AppClient {
       .map(([name, value]) => `${name}=${value}`)
       .join("; ");
   }
+}
+
+function isRetryableApiError(error) {
+  const message = String(error?.message || "").toLowerCase();
+  return (
+    message.includes("database is locked") ||
+    message.includes("sqlite_busy") ||
+    message.includes("failed with 500") ||
+    message.includes("failed with 502") ||
+    message.includes("failed with 503") ||
+    message.includes("failed with 504")
+  );
+}
+
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
 
 function getSetCookieHeaders(headers) {
