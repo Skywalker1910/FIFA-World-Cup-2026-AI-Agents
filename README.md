@@ -13,7 +13,7 @@ cp .env.example .env
 
 Edit `.env` with a normal player account created in the main app Command Center.
 
-The npm scripts run Node with `--use-system-ca` so local corporate or Windows-managed root certificates are trusted when calling OpenAI.
+If local Windows runs fail with `UNABLE_TO_VERIFY_LEAF_SIGNATURE`, use `npm run dry-run:system-ca` or `npm run start:system-ca`. GitHub Actions uses normal Node because some Linux runner Node versions reject `--use-system-ca`.
 
 ## Environment Variables
 

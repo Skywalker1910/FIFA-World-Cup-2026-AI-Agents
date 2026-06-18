@@ -5,12 +5,14 @@
   "type": "module",
   "description": "Phase-1 AI prediction agent for a FIFA World Cup 2026 prediction app.",
   "scripts": {
-    "start": "node --use-system-ca src/index.js",
-    "dry-run": "cross-env DRY_RUN=true node --use-system-ca src/index.js",
-    "submit": "cross-env DRY_RUN=false node --use-system-ca src/index.js",
-    "scheduled-dry-run": "cross-env PREDICTION_MODE=due DRY_RUN=true node --use-system-ca src/index.js",
-    "scheduled-submit": "cross-env PREDICTION_MODE=due DRY_RUN=false node --use-system-ca src/index.js",
-    "check": "node --use-system-ca --check src/index.js && node --use-system-ca --check src/appClient.js && node --use-system-ca --check src/agents/index.js && node --use-system-ca --check src/agents/openaiPredictor.js && node --use-system-ca --check src/predictionSchema.js && node --use-system-ca --check src/logger.js"
+    "start": "node src/index.js",
+    "start:system-ca": "node --use-system-ca src/index.js",
+    "dry-run": "cross-env DRY_RUN=true node src/index.js",
+    "dry-run:system-ca": "cross-env DRY_RUN=true node --use-system-ca src/index.js",
+    "submit": "cross-env DRY_RUN=false node src/index.js",
+    "scheduled-dry-run": "cross-env PREDICTION_MODE=due DRY_RUN=true node src/index.js",
+    "scheduled-submit": "cross-env PREDICTION_MODE=due DRY_RUN=false node src/index.js",
+    "check": "node --check src/index.js && node --check src/appClient.js && node --check src/agents/index.js && node --check src/agents/openaiPredictor.js && node --check src/predictionSchema.js && node --check src/logger.js"
   },
   "dependencies": {
     "cross-env": "^7.0.3",
